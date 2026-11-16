@@ -4,7 +4,7 @@
 # CMPT332
 
 """
-CMPT 360 - Option 4: Cover
+Option 4: Cover
 Unit Tests for the Baseline Algorithm
 
 These tests verify that exhaustive search:

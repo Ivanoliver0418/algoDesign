@@ -4,7 +4,7 @@
 # CMPT332
 
 """
-CMPT 360 - Option 4: Cover
+Option 4: Cover
 Unit Tests for the Faster Algorithm
 
 These tests verify that:
