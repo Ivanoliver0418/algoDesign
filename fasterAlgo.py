@@ -5,21 +5,19 @@
 
 """
 CMPT 360 - Option 4: Cover
-Faster Algorithm: Cactus Subset Enumeration
+Faster Algorithm: Optimized Cactus Subset Enumeration
 
 Goal:
 Water every orange tree while minimizing the number
 of distinct cacti watered.
 
-Main idea:
-Instead of trying all subsets of sprinklers, try all
-subsets of cacti that we are willing to water.
+Main improvements:
+1. Identify cacti that must be watered.
+2. Ignore sprinklers that cover no orange trees.
+3. Ignore cacti that are irrelevant to the solution.
+4. Enumerate only the remaining optional cacti.
 
-For each allowed cactus subset, select sprinklers that
-avoid the forbidden cacti and cover all orange trees.
-
-This approach works best when there are fewer cacti
-than sprinklers.
+The algorithm still guarantees an optimal solution.
 """
 
 import argparse
@@ -39,11 +37,10 @@ def solve_cover(O, C, S, R):
         or None if no valid solution exists.
     """
 
-    # Each sprinkler must have a corresponding radius.
+    # Check that each sprinkler has a radius.
     if len(S) != len(R):
         raise ValueError("S and R must have the same length")
 
-    # Sprinkler radii cannot be negative.
     if any(radius < 0 for radius in R):
         raise ValueError("Sprinkler radii cannot be negative")
 
@@ -51,116 +48,157 @@ def solve_cover(O, C, S, R):
     if not O:
         return [], 0
 
-    # Precompute which oranges and cacti each sprinkler
-    # waters. We represent these sets using bitmasks.
     orange_masks = []
     cactus_masks = []
+    useful = []
 
-    for position, radius in zip(S, R):
-
-        # Calculate the sprinkler's watering interval.
+    # Precompute the objects covered by each sprinkler.
+    for i, (position, radius) in enumerate(zip(S, R)):
         left = position - radius
         right = position + radius
 
         oranges = 0
         cacti = 0
 
-        # Set bit j to 1 if orange j is watered.
+        # Set one bit for every orange watered.
         for j, orange in enumerate(O):
             if left <= orange <= right:
                 oranges |= 1 << j
 
-        # Set bit j to 1 if cactus j is watered.
+        # Set one bit for every cactus watered.
         for j, cactus in enumerate(C):
             if left <= cactus <= right:
                 cacti |= 1 << j
 
-        # Save the coverage masks for this sprinkler.
         orange_masks.append(oranges)
         cactus_masks.append(cacti)
 
-    # A mask containing 1 for every orange tree.
-    # Example: 3 oranges -> binary 111.
+        # A sprinkler covering no oranges is unnecessary.
+        if oranges != 0:
+            useful.append(i)
+
+    # Target mask: every orange tree must be covered.
     all_oranges = (1 << len(O)) - 1
 
-    # Try allowing 0 cacti to get wet, then 1,
-    # then 2, until we find a valid solution.
-    for budget in range(len(C) + 1):
+    # --------------------------------------------------
+    # Optimization 1: Find unavoidable cacti.
+    # --------------------------------------------------
 
-        # Generate all cactus subsets of this size.
+    forced_cacti = 0
+
+    for j in range(len(O)):
+
+        # Find sprinklers that can water orange j.
+        covering = [
+            i for i in useful
+            if orange_masks[i] & (1 << j)
+        ]
+
+        # If no sprinkler reaches this orange,
+        # the entire problem is impossible.
+        if not covering:
+            return None
+
+        # Find cacti watered by EVERY sprinkler
+        # capable of covering this orange.
+        common_cacti = cactus_masks[covering[0]]
+
+        for i in covering[1:]:
+            common_cacti &= cactus_masks[i]
+
+        # These cacti must be watered in any solution.
+        forced_cacti |= common_cacti
+
+    # --------------------------------------------------
+    # Optimization 2: Remove irrelevant cacti.
+    # --------------------------------------------------
+
+    relevant_cacti = 0
+
+    # Only consider cacti watered by sprinklers
+    # that can cover at least one orange.
+    for i in useful:
+        relevant_cacti |= cactus_masks[i]
+
+    # Keep only cacti that are relevant but not forced.
+    # These are the cacti we actually need to enumerate.
+    optional_indices = [
+        j for j in range(len(C))
+        if (relevant_cacti & (1 << j))
+        and not (forced_cacti & (1 << j))
+    ]
+
+    # --------------------------------------------------
+    # Optimization 3: Search optional cactus subsets.
+    # --------------------------------------------------
+
+    # Try allowing zero optional cacti, then one,
+    # and continue until we find a valid solution.
+    for budget in range(len(optional_indices) + 1):
+
         for cactus_subset in combinations(
-            range(len(C)), budget
+            optional_indices, budget
         ):
 
-            # Create a mask of cacti allowed to get wet.
-            allowed_cacti = 0
+            # Forced cacti are always allowed.
+            allowed_cacti = forced_cacti
 
+            # Add the optional cacti for this subset.
             for j in cactus_subset:
                 allowed_cacti |= 1 << j
 
-            # Track the current sprinkler selection.
             selected = []
             covered_oranges = 0
-            actually_watered_cacti = 0
+            watered_cacti = 0
 
-            # Examine every sprinkler.
-            for i in range(len(S)):
+            # Examine only useful sprinklers.
+            for i in useful:
 
-                # Skip this sprinkler if it waters a
-                # cactus outside the allowed subset.
-                #
-                # & checks for overlap between sets.
-                # ~ identifies the forbidden cactus bits.
+                # Reject sprinklers watering forbidden cacti.
                 if cactus_masks[i] & ~allowed_cacti:
                     continue
 
-                # Skip this sprinkler if it does not
-                # cover any new orange trees.
-                #
-                # | combines the already covered oranges
-                # with the sprinkler's orange coverage.
+                # Skip sprinklers that add no new oranges.
                 if (orange_masks[i] | covered_oranges) == covered_oranges:
                     continue
 
-                # Select this sprinkler.
+                # Select the sprinkler and update coverage.
                 selected.append(i)
-
-                # Update the covered oranges and
-                # the cacti that actually get wet.
                 covered_oranges |= orange_masks[i]
-                actually_watered_cacti |= cactus_masks[i]
+                watered_cacti |= cactus_masks[i]
 
-                # Check whether every orange is covered.
+                # All orange trees are now covered.
                 if covered_oranges == all_oranges:
 
-                    # Count the number of distinct cacti
-                    # watered by the selected sprinklers.
-                    cost = bin(actually_watered_cacti).count("1")
+                    # Count distinct cacti actually watered.
+                    cost = bin(watered_cacti).count("1")
 
-                    # Since we try smaller cactus budgets
-                    # first, this solution is optimal.
+                    # Smaller budgets were checked first,
+                    # so this solution must be optimal.
                     return selected, cost
 
-    # No combination of sprinklers can cover all oranges.
+    # No valid sprinkler selection exists.
     return None
 
 
 def main():
-    # Read the input JSON filename from the terminal.
+    # Read the JSON input filename.
     parser = argparse.ArgumentParser(
-        description="Faster exact algorithm for CMPT 360 Cover"
+        description="Optimized exact algorithm for CMPT 360 Cover"
     )
+
     parser.add_argument(
         "input_file",
         help="Path to an input JSON file"
     )
+
     args = parser.parse_args()
 
-    # Load the orange, cactus, and sprinkler information.
+    # Load the input data.
     with open(args.input_file, "r", encoding="utf-8") as file:
         data = json.load(file)
 
-    # Execute the faster algorithm.
+    # Run the optimized algorithm.
     result = solve_cover(
         data["O"],
         data["C"],
@@ -168,12 +206,10 @@ def main():
         data["R"]
     )
 
-    # Handle cases where no valid solution exists.
     if result is None:
         print("No valid selection covers all orange trees.")
         return
 
-    # Display the selected sprinklers and minimum cost.
     selected_indices, cost = result
 
     print("Selected indices (0-based):", selected_indices)
@@ -184,6 +220,5 @@ def main():
     print("Number of cacti watered:", cost)
 
 
-# Run main() only when this file is executed directly.
 if __name__ == "__main__":
     main()
