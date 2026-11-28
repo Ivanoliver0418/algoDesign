@@ -1,0 +1,77 @@
+commit 7fe622ac1282734603581a6316a34f4231c7a64e
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Fri Nov 27 23:08:23 2026 -0600
+
+    Final report
+
+commit 068bf52bf37d90b9ed8bcf558fbfff57f81133bc
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Wed Nov 25 14:24:16 2026 -0600
+
+    Add scalability and memory evaluation
+
+commit db0959e1af8a8a92fec2c52aedf14509554abc89
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Wed Nov 25 14:06:49 2026 -0600
+
+    Ignore Python cache and virtual environment files
+
+commit 07c71577d36b54db75a63dd05ee7c12e9b020b92
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Wed Nov 25 13:50:16 2026 -0600
+
+    Draft baseline and optimized algorithm analysis report
+
+commit 2759321cb522e35bd651d875ad0159cc1e2d3120
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Tue Nov 24 21:17:30 2026 -0600
+
+    Evaluate pruning on unavoidable optional and random instances
+
+commit 8047cdd2e362bfc1e9e44f280cadae71222ce23d
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Mon Nov 23 15:47:52 2026 -0600
+
+    Optimize cactus search and compare benchmark performance
+
+commit 7c8d3cb7fa6c938d84eff431f6610aa08f5879d2
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Sun Nov 22 14:27:25 2026 -0600
+
+    Generate performance graphs from benchmark results
+
+commit b6e31c4ee82c444063876860deaaab78ed5c45e4
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Sun Nov 22 14:26:59 2026 -0600
+
+    Added name
+
+commit 58c5d1bd2ba47e847567ab17be0801d2d47f4948
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Mon Nov 16 14:37:55 2026 -0600
+
+    Add runtime benchmarks comparing both algorithms
+
+commit 1f93a6d9dcfd7896ddf72fab0537536881c78bf4
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Mon Nov 16 14:27:57 2026 -0600
+
+    Add assignment example for sprinkler coverage testing
+
+commit 96754eef8b44904f5865dbee7978e0db9d240b06
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Sun Nov 8 17:45:00 2026 -0600
+
+    Implement baseline and optimized sprinkler cover algorithms with tests
+
+commit f1ea0f9adfb63f28168bcf826934756f4922fc4d
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Fri Nov 6 14:45:55 2026 -0600
+
+    Implement exact sprinkler baseline.
+
+commit 1cea4c0b92b707ca225b86fe59ebf5da4ff15b8b
+Author: Ivan <Ivanjuliusoliver@gmail.com>
+Date:   Fri Nov 6 14:20:53 2026 -0600
+
+    first commit
